@@ -24,11 +24,11 @@ Arv* arv_cria(int c, int freq, Arv* sae, Arv* sad) {
     return p;
 }
 
-void troca(Arv *a, Arv *b){
+void troca(Arv **a, Arv **b){
     Arv aux;
-    aux = *a;
-    *a = *b;
-    *b = aux;
+    aux = **a;
+    **a = **b;
+    **b = aux;
 }
 
 int indiceFilhoEsquerdo(int i){
@@ -46,16 +46,16 @@ int indicePai(int i){
         return (i - 1) / 2;
 }
 
-void desce(Arv v[], int n, int i){
+void desce(Arv *v[], int n, int i){
     int esquerdo = indiceFilhoEsquerdo(i);
     int direito = indiceFilhoDireito(i);
     int menor = i;
 
-    if (esquerdo >= 0 && esquerdo < n && v[esquerdo].freq <= v[i].freq){
+    if (esquerdo >= 0 && esquerdo < n && v[esquerdo]->freq <= v[i]->freq){
         menor = esquerdo;
     }
 
-    if (direito >= 0 && direito < n && v[direito].freq < v[menor].freq){
+    if (direito >= 0 && direito < n && v[direito]->freq < v[menor]->freq){
         menor = direito;
     }
 
@@ -65,7 +65,7 @@ void desce(Arv v[], int n, int i){
     }
 }
 
-void constroiMinHeap(Arv v[], int n){
+void constroiMinHeap(Arv *v[], int n){
     for (int i = (n - 2)/2; i >= 0; i--){
         desce(v, n, i); 
     }
@@ -99,18 +99,28 @@ int main(int argc, char *argv[]){
 
         // construindo a minheap a partir da tabela de frequencias
         Arv *minheap[257];
-        int n; // indice da minheap
+        int n; // tamanho da minheap
         minheap[0] = arv_cria(HEOF, 0, NULL, NULL); // adicionando EOF artificialmente a minheap
         n = 1;
 
-        for(int i = 1; i < 257; i++){
+        for(int i = 0; i < 257; i++){
             if(freq[i] != 0){
                 minheap[n] = arv_cria(i, freq[i], NULL, NULL);
                 n++;
             }
         }
 
+        constroiMinHeap(minheap, n);
+
+        for (int i = 0; i < n; i++){
+            printf("%c:%d", minheap[i]->simbolo, minheap[i]->freq);
+        }
+
         // arvore de huffman
+
+
+
+
 
 
 
