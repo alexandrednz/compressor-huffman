@@ -6,7 +6,6 @@
 typedef struct arv Arv;
 
 struct arv{
-
     int simbolo;
     int freq;
 
@@ -24,11 +23,19 @@ Arv* arv_cria(int c, int freq, Arv* sae, Arv* sad) {
     return p;
 }
 
+void arv_imprime (Arv* a){
+    if(a != NULL){
+        printf("<%c %d> ", a->simbolo, a->freq);
+        arv_imprime(a->esq);
+        arv_imprime(a->dir);
+    }
+}
+
 void troca(Arv **a, Arv **b){
-    Arv aux;
-    aux = **a;
-    **a = **b;
-    **b = aux;
+    Arv *aux;
+    aux = *a;
+    *a = *b;
+    *b = aux;
 }
 
 int indiceFilhoEsquerdo(int i){
@@ -39,19 +46,12 @@ int indiceFilhoDireito(int i){
     return (i * 2) + 2;
 }
 
-int indicePai(int i){
-    if (i == 0)
-        return 0;
-    else    
-        return (i - 1) / 2;
-}
-
 void desce(Arv *v[], int n, int i){
     int esquerdo = indiceFilhoEsquerdo(i);
     int direito = indiceFilhoDireito(i);
     int menor = i;
 
-    if (esquerdo >= 0 && esquerdo < n && v[esquerdo]->freq <= v[i]->freq){
+    if (esquerdo >= 0 && esquerdo < n && v[esquerdo]->freq < v[i]->freq){
         menor = esquerdo;
     }
 
@@ -69,6 +69,33 @@ void constroiMinHeap(Arv *v[], int n){
     for (int i = (n - 2)/2; i >= 0; i--){
         desce(v, n, i); 
     }
+}
+
+void insere_heap(Arv *h[], int *n, Arv* novo){
+    h[*n] = novo;
+    *n = *n + 1;
+    constroiMinHeap(h, *n);
+}
+
+Arv* extrai_min(Arv *h[], int *n){
+    Arv* min = h[0];
+    troca(&h[0], &h[*n-1]);
+    *n = *n - 1;
+    desce(h, *n, 0);
+
+    return min;
+}
+
+Arv* cria_arv_huffman(Arv *h[], int *n){
+    Arv* novo;
+    while(*n > 1){
+        novo = (Arv*) malloc(sizeof(Arv));
+        novo->esq = extrai_min(h, n);
+        novo->dir = extrai_min(h, n);
+        novo->freq = (novo->esq->freq) + (novo->dir->freq);
+        insere_heap(h, n, novo); 
+    }
+    return extrai_min(h, n);
 }
 
 // argv[1] = c ou d (compactar ou descompactar)
@@ -112,12 +139,13 @@ int main(int argc, char *argv[]){
 
         constroiMinHeap(minheap, n);
 
-        for (int i = 0; i < n; i++){
-            printf("%c:%d", minheap[i]->simbolo, minheap[i]->freq);
-        }
+        // construindo arvore de huffman utilizando a minheap
+        Arv *huffman;
+        huffman = cria_arv_huffman(minheap, &n);
 
-        // arvore de huffman
-
+        arv_imprime(huffman);
+        
+   
 
 
 
@@ -129,7 +157,7 @@ int main(int argc, char *argv[]){
 
     }
     else if(strcmp(argv[1], "d") == 0){
-        printf("argv[1] e d");
+        printf("argv[1] eh d");
     }
 
     return 0;
