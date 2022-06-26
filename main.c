@@ -10,7 +10,7 @@
 typedef struct arv Arv;
 
 struct arv{
-    int simbolo;
+    short int simbolo;
     int freq;
     int ehFolha;
 
@@ -19,7 +19,7 @@ struct arv{
     struct arv* dir;
 };
 
-Arv* arv_cria(int c, int freq, Arv* sae, Arv* sad) {
+Arv* arv_cria(short int c, int freq, Arv* sae, Arv* sad) {
     Arv* p = (Arv*) malloc(sizeof(Arv));
     p->simbolo = c;
     p->freq = freq;
@@ -29,29 +29,14 @@ Arv* arv_cria(int c, int freq, Arv* sae, Arv* sad) {
     return p;
 }
 
-void arv_imprime (Arv* a, int alfabeto[], int* k){
+void organiza_alfabeto (Arv* a, short int alfabeto[], int* k){
     if(a != NULL){
         if(a->esq == NULL && a->dir == NULL) {
-            printf("1\n");
             alfabeto[(*k)] = a->simbolo;
             (*k)++;
-            printf("<%c %d>\n", a->simbolo, a->freq);
-        } else {
-            printf("0\n");
         }
-        arv_imprime(a->esq, alfabeto, k);
-        arv_imprime(a->dir, alfabeto, k);
-    }
-}
-
-void arv_imprime_2(Arv* a) {
-    if(a != NULL) {
-        if(a->ehFolha) {
-            printf("%c\n", a->simbolo);
-        }
-
-        arv_imprime_2(a->esq);
-        arv_imprime_2(a->dir);
+        organiza_alfabeto(a->esq, alfabeto, k);
+        organiza_alfabeto(a->dir, alfabeto, k);
     }
 }
 
@@ -64,7 +49,6 @@ Arv* arv_libera(Arv* a) {
 
     return NULL;
 }
-
 
 // ============================
 // funções relativas a minheap
@@ -151,16 +135,12 @@ void reconstroi_arv_huffman(Arv** a, Arv* n, Arv** x) {
             if((*x)->esq == NULL) {
                 (*x)->esq = n;
                 n->pai = *x;
-                printf("Inserido: ***%c\n", (*x)->esq->simbolo);
             } else if((*x)->dir == NULL) {
                 (*x)->dir = n;
                 n->pai = *x;
-                printf("Inserido: ***%c\n", (*x)->dir->simbolo);
             } else {
                 *x = (*x)->pai;
-                printf("Chamando recursão...\n");
                 reconstroi_arv_huffman(a, n, x);
-                printf("Finalizando recursão...\n");
             }
         } else {
             if((*x)->esq == NULL) {
@@ -173,15 +153,13 @@ void reconstroi_arv_huffman(Arv** a, Arv* n, Arv** x) {
                 *x = n;
             } else {
                 *x = (*x)->pai;
-                printf("Chamando recursão...\n");
                 reconstroi_arv_huffman(a, n, x);
-                printf("Finalizando recursão...\n");
             }
         }
     }
 }
 
-int busca_codigo(Arv** a, Arv** p, int b) {
+short int busca_codigo(Arv** a, Arv** p, int b) {
     if((*a)->esq == NULL && (*a)->dir == NULL) {
         return 256;
     } else {
@@ -192,7 +170,7 @@ int busca_codigo(Arv** a, Arv** p, int b) {
         }
 
         if((*p)->ehFolha) {
-            int simbolo = (*p)->simbolo;
+            short int simbolo = (*p)->simbolo;
             *p = *a;
             return simbolo;
         }
@@ -207,12 +185,10 @@ void gera_codigo_huffman(Arv* a, char b[], int* n, char c[][256]) {
             b[++(*n)] = '\0';
 
             if(b[0] == '\0') {
-                strcpy(c[(int) a->simbolo], "0");
+                strcpy(c[a->simbolo], "0");
             } else {
-                strcpy(c[(int) a->simbolo], b);
+                strcpy(c[a->simbolo], b);
             }
-
-            printf("<%c %d> : %s\n", a->simbolo, a->freq, c[(int) a->simbolo]);
         }
 
         if(a->esq != NULL) {
@@ -264,7 +240,7 @@ void insere_percurso_preordem(Arv* a, char* x, int* c, FILE* h) {
     }
 }
 
-void insere_texto_codificado(int caracter, char* x, int* c, char codigos[][256], FILE* h) {
+void insere_texto_codificado(short int caracter, char* x, int* c, char codigos[][256], FILE* h) {
     char codigo[256];
     strcpy(codigo, codigos[caracter]);
 
@@ -312,7 +288,7 @@ int main(int argc, char *argv[]){
             c = fgetc(f);
 
             if(!feof(f)){
-                freq[(int) c] = freq[(int) c] + 1;
+                freq[(short int) c] = freq[(short int) c] + 1;
             }
         } while(!feof(f));
 
@@ -333,19 +309,16 @@ int main(int argc, char *argv[]){
 
         constroiMinHeap(minheap, n);
 
-        unsigned int tamanho_alfabeto = n;
+        short int tamanho_alfabeto = n;
 
         // construindo arvore de huffman utilizando a minheap
         Arv *huffman;
         huffman = cria_arv_huffman(minheap, &n);
 
-        int alfabeto[257];
-        int k = 0;
-        arv_imprime(huffman, alfabeto, &k);
-
-        printf("\n");
-
         // construindo a tabela de codigos huffman
+        short int alfabeto[257];
+        int k = 0;
+        organiza_alfabeto(huffman, alfabeto, &k);
         char codigo[256];
         int posicao_codigo = -1;
         char codigos[257][256];
@@ -376,7 +349,7 @@ int main(int argc, char *argv[]){
 
         while(!feof(f)) {
             caracter_lido = fgetc(f);
-            insere_texto_codificado((int) caracter_lido, &preordem_texto, &posicao_preordem_texto, codigos, h);
+            insere_texto_codificado((short int) caracter_lido, &preordem_texto, &posicao_preordem_texto, codigos, h);
         }
 
         insere_texto_codificado(HEOF, &preordem_texto, &posicao_preordem_texto, codigos, h);
@@ -395,23 +368,14 @@ int main(int argc, char *argv[]){
         f = fopen(argv[2], "r");
         o = fopen(argv[3], "w");
 
-        fprintf(o, "%s", "Hello World");
-
         // lendo o cabeçalho
-        int tamanho_alfabeto;
-        fread(&tamanho_alfabeto, 2, 1, f);
-
+        short int tamanho_alfabeto;
+        fread(&tamanho_alfabeto, 2, 1, f);   
         short int alfabeto[tamanho_alfabeto];
-
+    
         for(int i = 0; i < tamanho_alfabeto; i++) {
             fread(&alfabeto[i], 2, 1, f);
         }
-
-        for(int i = 0; i < tamanho_alfabeto; i++) {
-            printf(">>>>%d\n", (int)alfabeto[i]);
-        }
-
-        printf(">>>>%d\n", alfabeto[0]);
 
         // construindo a arvore de huffman
         int posicao_no_byte, quantidade_de_uns = 0;
@@ -419,7 +383,6 @@ int main(int argc, char *argv[]){
         char byte;
         Arv* huffman = NULL;
         Arv* aux = NULL;
-
         while(quantidade_de_uns < tamanho_alfabeto) {
             posicao_no_byte = 7;
 
@@ -436,7 +399,6 @@ int main(int argc, char *argv[]){
                 
                 if(bit == 1) {
                     novo->simbolo = alfabeto[quantidade_de_uns];
-                    printf("++++++++++++%u\n", alfabeto[quantidade_de_uns]);
                     novo->ehFolha = 1;
                     reconstroi_arv_huffman(&huffman, novo, &aux);
                     quantidade_de_uns++;
@@ -445,8 +407,6 @@ int main(int argc, char *argv[]){
                     reconstroi_arv_huffman(&huffman, novo, &aux);
                 }
 
-                printf("%d --> %p\n", posicao_no_byte, (void*) aux);
-
                 posicao_no_byte--;
             }
         }
@@ -454,7 +414,6 @@ int main(int argc, char *argv[]){
         // traduzindo os bits para o arquivo de saída com a ajuda da árvore
         Arv* posicao_arvore = huffman;
         int text_end = 0;
-
         while(!text_end) {
             if(posicao_no_byte < 0) {
                 fread(&byte, 1, 1, f);
@@ -464,9 +423,9 @@ int main(int argc, char *argv[]){
             while(posicao_no_byte >= 0) {
                 bit = (byte >> posicao_no_byte) & 1;
 
-                int caracter = busca_codigo(&huffman, &posicao_arvore, bit);
+                short int caracter = busca_codigo(&huffman, &posicao_arvore, bit);
 
-                if(caracter != -1 && caracter != 256) {
+                if(caracter >= 0 && caracter <= 255) {
                     fprintf(o, "%c", (char) caracter);
                 }   
 
@@ -478,10 +437,7 @@ int main(int argc, char *argv[]){
                 posicao_no_byte--;
             }
         }
-
-        // printf("Procurando... achei o %c\n", huffman->dir->simbolo);
-        arv_imprime_2(huffman);
-
+       
         arv_libera(huffman);
 
         fclose(f);
