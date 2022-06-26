@@ -369,14 +369,14 @@ int main(int argc, char *argv[]){
         int tamanho_alfabeto;
         fread(&tamanho_alfabeto, 2, 1, f);
 
-        int alfabeto[tamanho_alfabeto];
+        short int alfabeto[tamanho_alfabeto];
 
         for(int i = 0; i < tamanho_alfabeto; i++) {
             fread(&alfabeto[i], 2, 1, f);
         }
 
         for(int i = 0; i < tamanho_alfabeto; i++) {
-            printf(">>>>%u\n", alfabeto[i]);
+            printf(">>>>%d\n", (int)alfabeto[i]);
         }
 
         printf(">>>>%d\n", alfabeto[0]);
@@ -421,7 +421,7 @@ int main(int argc, char *argv[]){
         Arv* posicao_arvore = huffman;
         int text_end = 0;
 
-        while(!feof(f)) {
+        while(!text_end) {
             if(posicao_no_byte < 0) {
                 fread(&byte, 1, 1, f);
                 posicao_no_byte = 7;
@@ -440,7 +440,7 @@ int main(int argc, char *argv[]){
 
                 if(caracter == 256) {
                     text_end = 1;
-                    printf("Encontrei o fim do texto...");
+                    break;
                 }
 
                 posicao_no_byte--;
