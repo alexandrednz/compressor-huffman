@@ -161,16 +161,20 @@ void reconstroi_arv_huffman(Arv** a, Arv* n, Arv** x) {
 }
 
 int busca_codigo(Arv** a, Arv** p, int b) {
-    if(b == 0) {
-        *p = (*p)->esq;
-    } else if (b == 1) {
-        *p = (*p)->dir;
-    }
+    if((*a)->esq == NULL && (*a)->dir == NULL) {
+        return 256;
+    } else {
+        if(b == 0) {
+            *p = (*p)->esq;
+        } else if (b == 1) {
+            *p = (*p)->dir;
+        }
 
-    if((*p)->ehFolha) {
-        int simbolo = (*p)->simbolo;
-        *p = *a;
-        return simbolo;
+        if((*p)->ehFolha) {
+            int simbolo = (*p)->simbolo;
+            *p = *a;
+            return simbolo;
+        }
     }
     
     return -1;
