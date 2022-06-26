@@ -3,6 +3,10 @@
 #include <string.h>
 #define HEOF 256
 
+
+// =====================================
+// funções relativas a árvores genéricas
+
 typedef struct arv Arv;
 
 struct arv{
@@ -50,6 +54,20 @@ void arv_imprime_2(Arv* a) {
         arv_imprime_2(a->dir);
     }
 }
+
+Arv* arv_libera(Arv* a) {
+    if (a !=NULL){
+        arv_libera(a->esq);
+        arv_libera(a->dir);
+        free(a);
+    }
+
+    return NULL;
+}
+
+
+// ============================
+// funções relativas a minheap
 
 void troca(Arv **a, Arv **b){
     Arv *aux;
@@ -105,6 +123,9 @@ Arv* extrai_min(Arv *h[], int *n){
 
     return min;
 }
+
+// =================================================
+// funções relativas a codigos e arvores de huffman 
 
 Arv* cria_arv_huffman(Arv *h[], int *n){
     Arv* novo;
@@ -324,12 +345,14 @@ int main(int argc, char *argv[]){
 
         printf("\n");
 
+        // construindo a tabela de codigos huffman
         char codigo[256];
         int posicao_codigo = -1;
         char codigos[257][256];
         
         gera_codigo_huffman(huffman, codigo, &posicao_codigo, codigos);
-   
+
+        // escrevendo o texto compactado no arquivo de saída
         FILE *h;
         h = fopen(argv[3], "w");
 
@@ -344,6 +367,8 @@ int main(int argc, char *argv[]){
         int posicao_preordem_texto = 7;
 
         insere_percurso_preordem(huffman, &preordem_texto, &posicao_preordem_texto, h);
+
+        arv_libera(huffman);
 
         f = fopen(argv[2], "r");
 
@@ -370,6 +395,9 @@ int main(int argc, char *argv[]){
         f = fopen(argv[2], "r");
         o = fopen(argv[3], "w");
 
+        fprintf(o, "%s", "Hello World");
+
+        // lendo o cabeçalho
         int tamanho_alfabeto;
         fread(&tamanho_alfabeto, 2, 1, f);
 
@@ -385,6 +413,7 @@ int main(int argc, char *argv[]){
 
         printf(">>>>%d\n", alfabeto[0]);
 
+        // construindo a arvore de huffman
         int posicao_no_byte, quantidade_de_uns = 0;
         unsigned int bit;
         char byte;
@@ -422,6 +451,7 @@ int main(int argc, char *argv[]){
             }
         }
 
+        // traduzindo os bits para o arquivo de saída com a ajuda da árvore
         Arv* posicao_arvore = huffman;
         int text_end = 0;
 
@@ -435,8 +465,6 @@ int main(int argc, char *argv[]){
                 bit = (byte >> posicao_no_byte) & 1;
 
                 int caracter = busca_codigo(&huffman, &posicao_arvore, bit);
-
-                
 
                 if(caracter != -1 && caracter != 256) {
                     fprintf(o, "%c", (char) caracter);
@@ -453,6 +481,8 @@ int main(int argc, char *argv[]){
 
         // printf("Procurando... achei o %c\n", huffman->dir->simbolo);
         arv_imprime_2(huffman);
+
+        arv_libera(huffman);
 
         fclose(f);
         fclose(o);
