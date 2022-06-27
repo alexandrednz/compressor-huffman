@@ -349,7 +349,10 @@ int main(int argc, char *argv[]){
 
         while(!feof(f)) {
             caracter_lido = fgetc(f);
-            insere_texto_codificado((short int) caracter_lido, &preordem_texto, &posicao_preordem_texto, codigos, h);
+            
+            if(caracter_lido >= 0 && caracter_lido <= 255) {
+                insere_texto_codificado((short int) caracter_lido, &preordem_texto, &posicao_preordem_texto, codigos, h);
+            }
         }
 
         insere_texto_codificado(HEOF, &preordem_texto, &posicao_preordem_texto, codigos, h);
