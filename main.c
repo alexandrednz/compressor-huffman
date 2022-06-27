@@ -1,3 +1,11 @@
+/**************************************************
+*
+* Alexandre Diniz de Souza e Leandro José Gonaçalves Pereira
+* Trabalho 2
+* Professor(a): Nome do(a) professor(a)
+*
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
